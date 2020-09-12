@@ -2,7 +2,7 @@ import uuid
 from django.utils import timezone
 import datetime
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect,HttpRequest
 from django.contrib import messages
 from .forms.subjectForm import SubjectForm
 from .creds import db,db2
@@ -33,8 +33,9 @@ def index(request):
         selected_db = db2[catch_db]
         selected_db.insert_one({
             'datetime' : timezone.now(),
-            'page' : 'homepage',
-            'ip_address' : ip
+            'page' : 'Homepage',
+            'ip_address' : ip,
+            'user_agent' : request.headers['user-agent']
         })
         response = db.subjects.find()
         return render(request, 'layout.html', {'subjects' : response})
@@ -56,7 +57,8 @@ def videopage(request,course):
         selected_db.insert_one({
             'datetime' : timezone.now(),
             'page' : 'videopage/{}'.format(course),
-            'ip_address' : ip
+            'ip_address' : ip,
+            'user_agent' : request.headers['user-agent']
         })
         courseCol = db[course]
         response = courseCol.find()
@@ -71,7 +73,8 @@ def pdfpage(request,course):
         selected_db.insert_one({
             'datetime' : timezone.now(),
             'page' : 'pdfpage/{}'.format(course),
-            'ip_address' : ip
+            'ip_address' : ip,
+            'user_agent' : request.headers['user-agent']
         })
         course = course + 'P'
         courseCol = db[course]
@@ -87,7 +90,8 @@ def livevidpage(request,course):
         selected_db.insert_one({
             'datetime' : timezone.now(),
             'page' : 'liveVidpage/{}'.format(course),
-            'ip_address' : ip
+            'ip_address' : ip,
+            'user_agent' : request.headers['user-agent']
         })
         course = course + 'L'
         courseCol = db[course]
@@ -103,7 +107,8 @@ def classification(request,course):
         selected_db.insert_one({
             'datetime' : timezone.now(),
             'page' : 'classification/{}'.format(course),
-            'ip_address' : ip
+            'ip_address' : ip,
+            'user_agent' : request.headers['user-agent']
         })
         subjectDetails = db.subjects.find_one({"subjectCode":course})
         return render(request,'classification.html', {'courseDetails': subjectDetails})
