@@ -1,0 +1,101 @@
+Metadata-Version: 1.1
+Name: django-mongo-sessions
+Version: 0.0.4
+Summary: mongodb as Django sessions backend
+Home-page: https://github.com/hellysmile/django-mongo-sessions
+Author: hellysmile
+Author-email: hellysmile@gmail.com
+License: http://www.apache.org/licenses/LICENSE-2.0
+Description: django-mongo-sessions
+        =====================
+        
+        :info: mongodb as Django sessions backend
+        
+        .. image:: https://api.travis-ci.org/hellysmile/django-mongo-sessions.png
+            :target: https://travis-ci.org/hellysmile/django-mongo-sessions
+        
+        features
+        ********
+        
+        * fast NoSQL Django sessions backend
+        * invalidation via `TTL <http://docs.mongodb.org/manual/tutorial/expire-data/>`_
+        
+        installation
+        ------------
+        
+        run ``pip install django-mongo-sessions``
+        
+        set ``mongo_sessions.session`` as session engine::
+        
+            SESSION_ENGINE = 'mongo_sessions.session'
+        
+        settings
+        --------
+        
+        there is two ways to setup mongodb connection at ``settings.py``
+        
+        
+        first, if already have mongo connection, like::
+        
+            import pymongo
+            from pymongo import MongoClient
+            connection = MongoClient()
+            MONGO_CLIENT = connection.your_database
+            MONGO_SESSIONS_COLLECTION = 'mongo_sessions' # default option
+        
+        second, if you need to connect to mongodb, like::
+        
+            MONGO_PORT = 27017
+            MONGO_HOST = 'localhost'
+            MONGO_DB_NAME = 'test'
+            MONGO_DB_USER = False
+            MONGO_DB_PASSWORD = False
+            MONGO_SESSIONS_COLLECTION = 'mongo_sessions'
+        
+            # all this settings are defaults, you can skip any
+        
+        ``expireAfterSeconds`` index value by default is ``SESSION_COOKIE_AGE``
+        you can change::
+        
+            MONGO_SESSIONS_TTL = 60 * 60 # one hour
+        
+        be sure, that you know what are you doing with it, ``SESSION_COOKIE_AGE``
+        will get different expiration time
+        
+        every time you change one of this values, ``expireAfterSeconds`` index
+        will be dropped and then will be indexed with ``ensureIndex`` again,
+        be careful here
+        
+        *it is good way to change expireAfterSeconds only by 1 running instance*
+        
+        tests
+        -----
+        
+        ::
+        
+            pip install tox
+            tox
+        
+Keywords: django,mongo,sessions
+Platform: UNKNOWN
+Classifier: Framework :: Django
+Classifier: Environment :: Web Environment
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Internet :: WWW/HTTP
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Natural Language :: English
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 2.5
+Classifier: Programming Language :: Python :: 2.6
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.2
+Classifier: Programming Language :: Python :: 3.3
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Classifier: Programming Language :: Python :: Implementation :: PyPy
+Classifier: Operating System :: MacOS :: MacOS X
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Operating System :: POSIX
+Classifier: Operating System :: Unix
