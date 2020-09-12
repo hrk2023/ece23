@@ -13,16 +13,17 @@ from functools import wraps
 def validate_access(f):
     @wraps(f)
     def validate_inner(request,*args, **kwargs):
-        api_key = request.GET.get('api_key',None)
-        if api_key is not None:
-            match_status = db2.user.find_one({'api_key': api_key})
-            if match_status:
-                request.session['USER'] = match_status['rollno']
-                return f(request,*args,**kwargs)
-            return render(request, 'access.html',{'message' :'WRONG KEY' })
-            print("wrong key")
-        return render(request, 'access.html',{'message' : 'ACCESS DENIED'})
-        print("access denied")
+        if request.session.get('USER',None) is not None:
+            return f(request,*args,**kwargs)
+        else:
+            api_key = request.GET.get('api_key',None)
+            if api_key is not None:
+                match_status = db2.user.find_one({'api_key': api_key})
+                if match_status:
+                    request.session['USER'] = match_status['rollno']
+                    return f(request,*args,**kwargs)
+                return render(request, 'access.html',{'message' :'WRONG KEY' })
+            return render(request, 'access.html',{'message' : 'ACCESS DENIED'})
     return validate_inner
 
 @validate_access
