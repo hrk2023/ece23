@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Ece 10-23</title>
+        <meta name="viewport" content="width=device-width initial-scale=1.0">
+        <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+        <style>
+            .message-container{
+                width : :95%;
+                margin : 20%  auto;
+                text-align : center;
+                height : 20vh;
+                font-size : 80px;
+                font-weight : bold;
+            }
+            @media screen and (max-width: 768px){
+                .message-container{
+                    font-size : 45px;
+                    margin : 50% auto;
+                }
+                .sub-hed{
+                    font-weight : normal;
+                    font-size : 25px;
+                }
+            }
+        </style>
+    </head>
+    <body class="bg-gray-900 h-full">
+        <div class="text-white text-3xl message-container">
+            <p>{{message}}</p>
+            {% if message == 'ACCESS DENIED' %}
+                <p class="text-white text-xl sub-hed">Contact ece19site@gmail.com</p>
+            {% endif  %}
+        </div>
+    </body>
+</html>

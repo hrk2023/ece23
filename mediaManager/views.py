@@ -1,36 +1,113 @@
 import uuid
+from django.utils import timezone
 import datetime
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.contrib import messages
 from .forms.subjectForm import SubjectForm
-from .creds import db
+from .creds import db,db2
 from .handleFile import handleFiles
 # Create your views here.
+from functools import wraps
+
+def validate_access(f):
+    @wraps(f)
+    def validate_inner(request,*args, **kwargs):
+        api_key = request.GET.get('api_key',None)
+        if api_key is not None:
+            match_status = db2.user.find_one({'api_key': api_key})
+            if match_status:
+                request.session['USER'] = match_status['rollno']
+                return f(request,*args,**kwargs)
+            return render(request, 'access.html',{'message' :'WRONG KEY' })
+            print("wrong key")
+        return render(request, 'access.html',{'message' : 'ACCESS DENIED'})
+        print("access denied")
+    return validate_inner
+
+@validate_access
 def index(request):
-    response = db.subjects.find()
-    return render(request, 'layout.html', {'subjects' : response})
+    if request.session.get('USER',None) is not None:
+        ip = get_client_ip(request)
+        catch_db = request.session['USER']
+        selected_db = db2[catch_db]
+        selected_db.insert_one({
+            'datetime' : timezone.now(),
+            'page' : 'homepage',
+            'ip_address' : ip
+        })
+        response = db.subjects.find()
+        return render(request, 'layout.html', {'subjects' : response})
+    return render(request, 'access.html',{'message' : 'ACCESS DENIED'})
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[-1].strip()
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
 
 def videopage(request,course):
-    courseCol = db[course]
-    response = courseCol.find()
-    return render(request, 'videoPage.html', {'videos' : response})
+    if request.session.get('USER',None) is not None:
+        ip = get_client_ip(request)
+        catch_db = request.session['USER']
+        selected_db = db2[catch_db]
+        selected_db.insert_one({
+            'datetime' : timezone.now(),
+            'page' : 'videopage/{}'.format(course),
+            'ip_address' : ip
+        })
+        courseCol = db[course]
+        response = courseCol.find()
+        return render(request, 'videoPage.html', {'videos' : response})
+    return render(request, 'access.html',{'message' : 'ACCESS DENIED'}) 
 
 def pdfpage(request,course):
-    course = course + 'P'
-    courseCol = db[course]
-    response = courseCol.find()
-    return render(request, 'pdfPage.html', {'docs' : response})
+    if request.session.get('USER',None) is not None:
+        ip = get_client_ip(request)
+        catch_db = request.session['USER']
+        selected_db = db2[catch_db]
+        selected_db.insert_one({
+            'datetime' : timezone.now(),
+            'page' : 'pdfpage/{}'.format(course),
+            'ip_address' : ip
+        })
+        course = course + 'P'
+        courseCol = db[course]
+        response = courseCol.find()
+        return render(request, 'pdfPage.html', {'docs' : response})
+    return render(request, 'access.html',{'message' : 'ACCESS DENIED'})
 
 def livevidpage(request,course):
-    course = course + 'L'
-    courseCol = db[course]
-    response = courseCol.find()
-    return render(request, 'livePage.html', {'videos' : response})
+    if request.session.get('USER',None) is not None:
+        ip = get_client_ip(request)
+        catch_db = request.session['USER']
+        selected_db = db2[catch_db]
+        selected_db.insert_one({
+            'datetime' : timezone.now(),
+            'page' : 'liveVidpage/{}'.format(course),
+            'ip_address' : ip
+        })
+        course = course + 'L'
+        courseCol = db[course]
+        response = courseCol.find()
+        return render(request, 'livePage.html', {'videos' : response})
+    return render(request, 'access.html',{'message' : 'ACCESS DENIED'})
 
 def classification(request,course):
-    subjectDetails = db.subjects.find_one({"subjectCode":course})
-    return render(request,'classification.html', {'courseDetails': subjectDetails})
+    if request.session.get('USER',None) is not None:
+        ip = get_client_ip(request)
+        catch_db = request.session['USER']
+        selected_db = db2[catch_db]
+        selected_db.insert_one({
+            'datetime' : timezone.now(),
+            'page' : 'classification/{}'.format(course),
+            'ip_address' : ip
+        })
+        subjectDetails = db.subjects.find_one({"subjectCode":course})
+        return render(request,'classification.html', {'courseDetails': subjectDetails})
+    return render(request, 'access.html',{'message' : 'ACCESS DENIED'}) 
 
 # ADD A NEW SUBJECT
 def subjectAdd(request):
